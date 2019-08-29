@@ -3,7 +3,10 @@
 #include <cstring> //for memcopy
 
 /*
-Ref: https://github.com/google/googletest/blob/master/googletest/docs/primer.md
+Ref: 
+https://github.com/google/googletest/blob/master/googletest/docs/primer.md
+https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googlemock/docs/cook_book.md#MockingNonVirtualMethods
+https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googlemock/docs/for_dummies.md
 Assertion:
 1)Succuss
 2)Non Fatal Failure ==> EXPECT
