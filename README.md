@@ -4,3 +4,5 @@ This repository contains snippet code of how to use Google Test and Google Mocki
 
 [![Build Status](https://travis-ci.org/behnamasadi/gtest_gmock.svg?branch=master)](https://travis-ci.org/behnamasadi/gtest_gmock)
 ![alt text](https://img.shields.io/badge/license-BSD-blue.svg)
+
+Ref: [1](https://github.com/bast/gtest-demo/blob/master/CMakeLists.txt)
