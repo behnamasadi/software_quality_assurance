@@ -155,12 +155,6 @@ TEST_F(FooTest,hasString)
 }
 ```
 
-### Test-Driven Development (TDD) 
-
-
-
-
-
 ## Google Mock
 Let say you have a component which use an interface and you interested to test the component and not the interface. For example your interface would be a class called `databaseConnect` which can connect you to sql server, mysql server, sqlite, etc and your data access layer class would called 
 `databaseLayer`
@@ -206,8 +200,7 @@ The destructor of interface class must be virtual, as is the case for all classe
 ## Testing Multi-Threaded Code
 
 
-# Test Driven Development
-
+# Test-Driven Development (TDD) 
 
 
 [![Build Status](https://travis-ci.org/behnamasadi/gtest_gmock.svg?branch=master)](https://travis-ci.org/behnamasadi/gtest_gmock)
