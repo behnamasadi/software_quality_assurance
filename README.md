@@ -8,7 +8,18 @@
       - [SetUp()](#setup--)
       - [TearDown()](#teardown--)
   * [Google Test XML report](#google-test-xml-report)
+  * [Parameterised Test (Template class parameters)](#parameterised-test--template-class-parameters-)
 - [Google Mock](#google-mock)
+  * [Writing the Mock Class](#writing-the-mock-class)
+  * [Writting the Test](#writting-the-test)
+  * [ON_CALL vs EXPECT_CALL](#on-call-vs-expect-call)
+  * [Matchers](#matchers)
+  * [Common Matchers](#common-matchers)
+    + [Defining Matchers](#defining-matchers)
+  * [Actions](#actions)
+  * [Common Actions](#common-actions)
+    + [Defining Actions](#defining-actions)
+  * [Where to Place Mocked Interfaces Code](#where-to-place-mocked-interfaces-code)
 - [Testing Multi-Threaded Code](#testing-multi-threaded-code)
 - [Test-Driven Development (TDD)](#test-driven-development--tdd-)
 
@@ -174,16 +185,23 @@ TEST_F(FooTest,hasString)
 <test executable> --gtest_output=xml:<filename>
 ```
 
+## Parameterised Test (Template class parameters)
+```
+TYPED_TEST_CASE
+TYPED_TEST
+```
+
 # Google Mock
-Let say you have a component which use an interface and you interested to test the component and not the interface. For example your interface would be a class called `databaseConnect` which can connect you to sql server, mysql server, sqlite, etc and your data access layer class would called 
-`databaseLayer`
+Let say you have a class which use an interface and you interested to test the class and not the interface. For example your interface would be a class called `IRandomNumberGenerator` which can generate random number with various data distribution. 
+This class should be an abstract calss (which cannot be instantiated) and depending on the desired distribution, the real job should be implemented in classes such as `UniformRandomNumberGenerator`, `GammaRandomNumberGenerator`, etc which inherite from `IRandomNumberGenerator` class.
 
- This class should be an abstract calss (which cannot be instantiated) and depending on the database type the real job should be implemented in classes such as `sqlServerConnector`, `mysqlServerConnector` which inherite from `databaseConnect` class.
+The class that you are interested to test is `CoinFlipper` which needs a random generator. We use dependency injection 
+and instead of having your application talk to the system API directly, wrap the API in an interface (`IRandomNumberGenerator`) and code to that interface
 
-You data access layer class, `databaseLayer` use `databaseConnect` type to establish connection to different databases type, in fact a pointer to the interface type should be passed into the constructor of `databaseLayer`. It is best practice to use a smart pointer in these cases, to avoid memory management issues.
+So in your `CoinFlipper` calss you have memeber that is a pointer from `IRandomNumberGenerator` type.  In fact a pointer to the interface type should be passed into the constructor of `CoinFlipper`. It is best practice to use a smart pointer in these cases, to avoid memory management issues.
 
 
-Since we interested to only test `databaseLayer`, and instances of `databaseConnect` might have non-deterministic behaviour which can't be reliably controlled, we create a mock object that inherite from `databaseConnect` and we pass that to `databaseLayer`.
+Since we interested to only test `CoinFlipper`,  (which needs an instance of `IRandomNumberGenerator`) and that instances might have non-deterministic behaviour which can't be reliably controlled, we create a mock object that inherite from `IRandomNumberGenerator` and we pass that to `CoinFlipper`.
 
 In fact any code that is non-deterministic for example:
 
@@ -195,25 +213,198 @@ would be mocked via a mock class and In the production code, the constructor wil
 
 <!--- correspondig PlantUML model 
 @startuml
-databaseLayer..> databaseConnect
-databaseConnect <|-- MockDB
-databaseLayer..> MockDB
+CoinFlipper..> IRandomNumberGenerator
+databaseConnect <|-- MockRandomNumberGenerator
+CoinFlipper..> MockRandomNumberGenerator
 @enduml
 -->
 
-![PlantUML model](http://www.plantuml.com/plantuml/svg/SoWkIImgAStDuKf9B4bCIYnEzKciJ2tIqxDJW0auv-VbfIQNSA7n5MngT7KLVFEJirsSC3J3n1rIyrA0XWC0)
+![PlantUML model](http://www.plantuml.com/plantuml/svg/SoWkIImgAStDuNBEpynpoyaiA4WjqjEpK_0CIinBoS_rAyrDIYroJyrBBKeioI_YmYwiO5EZgwlWcv-SZLKQpMmy2XrIyrA0ZW40)
 
 
-A mock should inherit from an abstract class, generally, that defines a virtual destructor explicitly and defines a pure virtual function for any method that will be needed by the mock objects.
-
+A mock should inherit from an abstract class, generally, that defines a virtual destructor explicitly and defines a pure virtual function for any method that will be needed by the mock objects. In other words, you can't mock non-virtual methods.
 The destructor of interface class must be virtual, as is the case for all classes you intend to inherit from - otherwise the destructor of the derived class will not be called when you delete an object through a base pointer, and you'll get corrupted program states like memory leaks.)
 
+```
+class IRandomNumberGenerator
+{
+    public:
+    virtual ~IRandomNumberGenerator(){}
+        virtual double generate(double min,double  max)=0;
+};
 
+enum class FlipCoinResult{HEAD=0, TAIL=1};
 
+class CoinFlipper
+{
+    std::shared_ptr<IRandomNumberGenerator> m_RandomNumberGenerator;
+public:
+    CoinFlipper(std::shared_ptr<IRandomNumberGenerator> RandomNumberGenerator)
+    {
+        m_RandomNumberGenerator=RandomNumberGenerator;
+    }
+    FlipCoinResult flip()
+    {
+        double result=m_RandomNumberGenerator->generate(0.0,1.0);
+        return (result>0.5)? FlipCoinResult::HEAD:FlipCoinResult::TAIL;
+    }
+};
 
+```
+## Writing the Mock Class
+
+1) Derive a class `MockRandomNumberGenerator` from `IRandomNumberGenerator`
+
+2) For every vitual function use the following macros:
+
+```
+MOCK_METHOD[n](methodName, returnType(arg1Type, ..., argNType));
+MOCK_CONST_METHOD[n](methodName, returnType(arg1Type, ..., argNType));
+```
+So you should have something like this in your code:
+```
+class MockRandomNumberGenerator: public IRandomNumberGenerator
+{
+public:
+    MOCK_METHOD2(generate,double(double,double));
+};
+```
+
+## Writting the Test 
+
+You test should have the follwoing format:
+```
+EXPECT_CALL(mockObject, method(arg1Matcher, ..., argNMatcher))
+    .With(multiArgumentMatcher)  // 0 or 1
+    .Times(cardinality)          // 0 or 1
+    .InSequence(sequences)       // 0+
+    .After(expectations)         // 0+
+    .WillOnce(action)            // 0+
+    .WillRepeatedly(action)      // 0 or 1
+    .RetiresOnSaturation();      // 0 or 1
+```
+For example:
+```
+TEST(CoinFlipper, flip)
+{
+    // 1) Create mock objects
+    std::shared_ptr<MockRandomNumberGenerator>rng_ptr(new MockRandomNumberGenerator);
+
+    // 2) Specify your expectations of them
+    EXPECT_CALL(*rng_ptr, generate(0.0,1.0))
+    .Times(AtLeast(1))
+    .WillOnce(Return(0.25));
+
+    // 3) Construct object(s) under test, passing mocks
+    CoinFlipper coinFlipper(rng_ptr);
+
+    // 4) Run code under test
+    FlipCoinResult result= coinFlipper.flip();
+
+    // 5) Check output (using Google Test or some other framework)
+    EXPECT_EQ(FlipCoinResult::TAIL, result);
+}
+
+```
+## ON_CALL vs EXPECT_CALL
+
+## Matchers
+Matchers are functions used to match mock inputs to their expected values:
+
+## Common Matchers
+<!-- mdformat off(github rendering does not support multiline tables) -->
+
+| Matcher	                                        | Matches                                | 
+| --------------------------                            | ------------------------------         | 
+|`_`	                                                |matches anything                        |
+|`Eq(value)`	                                        |values using operator==()               |
+|`DoubleEq(value)`	                                |values using fuzzy 64-bit float equality|
+|`IsNull()`	                                        |null raw/smart pointers                 |
+|`StrCaseEq(string)`	                                |string (case-insensitive)               |
+|`HasSubstr(string)`	                                |strings with given substring            |
+|`Contains(elem)`	                                |containers that contain elem at least once|
+|`UnorderedElementsAre(e0, e1, ...)`                    |containers that contain specified elements, ignoring order|
+|`Field(&class::field, matcher)` (e.g. obj.d_age)       |objects with value for specified member variable|
+|`Property(&class::property, matcher)` (e.g. obj.age()) |objects with value for specified member function |
+
+<!-- mdformat on-->
+
+### Defining Matchers
+```
+MATCHER(IsEven, "") { return (arg % 2) == 0; }
+```
+For example:
+```
+MATCHER_P(IsDivisibleBy, n, "") 
+{
+    return (arg % n) == 0;
+}
+
+// all numbers in vector being written should be even
+EXPECT_CALL(writer, writeVec(Each(IsEven))
+    .Times(Exactly(1)).WillOnce(Return(0));
+
+// all numbers in vector being written should be divisible by 3
+EXPECT_CALL(writer, writeVec(Each(IsDivisibleBy(3))))
+    .Times(Exactly(1)).WillOnce(Return(0));
+
+```
+## Actions
+Actions specify what a mock method does when called
+
+```
+EXPECT_CALL(writer, writeVec(_))
+    .Times(Exactly(1)).WillOnce(
+        Return(1) // action
+    );
+```
+
+## Common Actions
+<!-- mdformat off(github rendering does not support multiline tables) -->
+| Action	        |                                                                              | 
+| ----------------------| ------------------------------                                               | 
+|Return(value)	        |Return specified value                                                        |
+|SetArgPointee<N>()	|Set value of Nth argument passed to mocked method (useful for out parameters) |
+|Throw(exception)	|Throw specified exception                                                     |
+|Invoke(f)	        |Invoke function f with arguments passed to mocked method                      |
+|DoAll(a1, a2, ..., aN)	|Perform multiple actions in sequence                                          |
+<!-- mdformat on-->
+
+### Defining Actions
+```
+ACTION(Sum) 
+{
+    return arg0 + arg1;
+}
+```
+For example
+```
+// parametrised action
+ACTION_P(AppendName, name) {
+    arg0.push_back(name);
+}
+
+EXPECT_CALL(calculator, add(_, _))
+    .Times(Exactly(1)).WillOnce(Sum());
+
+EXPECT_CALL(customerDatabase, retrieveCustomerNames(_))
+    .Times(Exactly(1)).WillOnce(DoAll(
+        AppendName("Bob"),
+        AppendName("Susie"),
+        Return(0)             // retrieval was a success
+    ));
+```
+
+## Where to Place Mocked Interfaces Code
+If you need to mock `IFoo` and it's is not your code and belonged to others, you can do the following:
+
+1) Define a sub-package test in IFoo's package, put it in a .h and a cc_library  and  everyone can reference them from their tests. If `IFoo` ever changes, there is only one copy of `MockIFoo` to change, 
+and only tests that depend on the changed methods need to be fixed.
+
+2) you can introduce a thin layer `FooAdaptor` on top of `IFoo` and code to this new interface. Since you own `FooAdaptor`, you can absorb changes
+ in Foo much more easily. While this is more work initially, carefully choosing the adaptor interface can make your code easier to write and more readable (a net win in the long run), as you can choose `FooAdaptor` to fit your specific domain much better than Foo does.
 
 # Testing Multi-Threaded Code
-
 
 # Test-Driven Development (TDD) 
 
@@ -221,12 +412,22 @@ The destructor of interface class must be virtual, as is the case for all classe
 [![Build Status](https://travis-ci.org/behnamasadi/gtest_gmock.svg?branch=master)](https://travis-ci.org/behnamasadi/gtest_gmock)
 ![alt text](https://img.shields.io/badge/license-BSD-blue.svg)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+<small><i>TOC generated with <a href='http://ecotrust-canada.github.io/markdown-toc/'>markdown-toc</a></i></small>
+
+
 Ref:    [1](https://github.com/google/googletest/blob/master/googletest/docs/primer.md),
-	[2](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googlemock/docs/cook_book.md#MockingNonVirtualMethods),
-	[3](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googlemock/docs/for_dummies.md),
-	[4](https://github.com/google/googletest/blob/master/googlemock/docs/for_dummies.md),
-	[5](https://stackoverflow.com/questions/47354280/what-is-the-best-way-of-testing-private-methods-with-googletest/47358700)
+	[2](https://github.com/google/googletest/blob/master/googlemock/docs/for_dummies.md),
+	[3](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googletest/docs/advanced.md),
+	[4](https://github.com/google/googletest/blob/master/googlemock/docs/cook_book.md),
+	[5](https://github.com/google/googletest/blob/master/googlemock/docs/cheat_sheet.md),
+	[5](http://donsoft.io/gmock-presentation/),
+	[6](https://github.com/davidstutz/googlemock-example),
+	[7](https://medium.com/foxguard-development/google-test-and-google-mock-20a7e416f93e),
+	[8](https://stackoverflow.com/questions/3152326/google-test-parameterized-tests-which-use-an-existing-test-fixture-class),
+	[9](https://stackoverflow.com/questions/47354280/what-is-the-best-way-of-testing-private-methods-with-googletest/47358700),
+	[10](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googletest/samples/sample6_unittest.cc)
+
+
 
 
 

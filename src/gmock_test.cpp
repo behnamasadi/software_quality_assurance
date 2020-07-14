@@ -3,6 +3,60 @@
 #include <string>
 #include <memory>
 
+using ::testing::Return;
+using ::testing::AtLeast;
+using ::testing::DefaultValue;
+
+class IRandomNumberGenerator
+{
+    public:
+    virtual ~IRandomNumberGenerator(){}
+        virtual double generate(double min,double  max)=0;
+};
+
+enum class FlipCoinResult{HEAD=0, TAIL=1};
+
+class CoinFlipper
+{
+    std::shared_ptr<IRandomNumberGenerator> m_RandomNumberGenerator;
+public:
+    CoinFlipper(std::shared_ptr<IRandomNumberGenerator> RandomNumberGenerator)
+    {
+        m_RandomNumberGenerator=RandomNumberGenerator;
+    }
+    FlipCoinResult flip()
+    {
+        double result=m_RandomNumberGenerator->generate(0.0,1.0);
+        return (result>0.5)? FlipCoinResult::HEAD:FlipCoinResult::TAIL;
+    }
+};
+
+class MockRandomNumberGenerator: public IRandomNumberGenerator
+{
+public:
+    MOCK_METHOD2(generate,double(double,double));
+};
+
+TEST(CoinFlipper, flip)
+{
+    // 1) Create mock objects (collaborators)
+    std::shared_ptr<MockRandomNumberGenerator>rng_ptr(new MockRandomNumberGenerator);
+
+    // 2) Specify your expectations of them
+    EXPECT_CALL(*rng_ptr, generate(0.0,1.0))
+    .Times(AtLeast(1))
+    .WillOnce(Return(0.25));
+
+    // 3) Construct object(s) under test, passing mocks
+    CoinFlipper coinFlipper(rng_ptr);
+
+    // 4) Run code under test
+    FlipCoinResult result= coinFlipper.flip();
+
+    // 5) Check output (using Google Test or some other framework)
+    EXPECT_EQ(FlipCoinResult::TAIL, result);
+}
+
 class databaseConnect
 {
 public:
@@ -22,81 +76,8 @@ class databaseLayer
 public:
     databaseLayer(std::shared_ptr<databaseConnect> databaseConnectObject)
     {
-        //if(databaseConnectObject->login())
     }
 };
-
-
-class Turtle
-{
-public:
-    virtual ~Turtle() {}
-    virtual void PenUp() = 0;
-    virtual void PenDown() = 0;
-    virtual void Forward(int distance) = 0;
-    virtual void Turn(int degrees) = 0;
-    virtual void GoTo(int x, int y) = 0;
-    virtual int GetX() const = 0;
-    virtual int GetY() const = 0;
-};
-
-class Painter
-{
-        Turtle * turtle;
-public:
-        Painter( Turtle * turtle): turtle(turtle){}
-        bool DrawCircle(int, int, int)
-        {
-                turtle->PenDown();
-                return true;
-        }
-};
-
-
-
-using ::testing::AtLeast;                         // #1
-
-
-class MockTurtle : public Turtle {
- public:
-    MOCK_METHOD(void, PenUp, (), (override));
-    MOCK_METHOD(void, PenDown, (), (override));
-    MOCK_METHOD(void, Forward, (int distance), (override));
-    MOCK_METHOD(void, Turn, (int degrees), (override));
-    MOCK_METHOD(void, GoTo, (int x, int y), (override));
-    MOCK_METHOD(int, GetX, (), (const, override));
-    MOCK_METHOD(int, GetY, (), (const, override));
-};
-
-
-
-TEST(PainterTest, CanDrawSomething) {
-  MockTurtle turtle;
-  EXPECT_CALL(turtle, PenDown()).Times(AtLeast(1));
-
-
-  // If the painter object didn't call this method, your test will fail with a message
-  Painter painter(&turtle);
-  EXPECT_TRUE(painter.DrawCircle(0, 0, 10));
-
-
-
-  /* How to send argument for functions */
-  //EXPECT_CALL(turtle, Forward(100));//Expects the turtle to move forward by 100 units.
-}
-
-
-// Tests that the Foo::Bar() method does Abc.
-
-TEST(MyTestSuite, MyTest) {
-  std::vector<int> test1;
-  std::vector<int> test2;
-
-  EXPECT_THAT(test1, ::testing::ContainerEq(test2));
-
-  int x;
-  //    EXPECT_THAT(test1, ContainerEq(test2));
-}
 
 int main(int argc, char **argv)
 {
