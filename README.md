@@ -409,7 +409,7 @@ and only tests that depend on the changed methods need to be fixed.
 # Test-Driven Development (TDD) 
 
 
-[![Build Status](https://travis-ci.org/behnamasadi/gtest_gmock.svg?branch=master)](https://travis-ci.org/behnamasadi/gtest_gmock)
+[![Build Status](https://travis-ci.com/behnamasadi/gtest_gmock.svg?branch=master)](https://travis-ci.com/behnamasadi/gtest_gmock)
 ![alt text](https://img.shields.io/badge/license-BSD-blue.svg)
 
 <small><i>TOC generated with <a href='http://ecotrust-canada.github.io/markdown-toc/'>markdown-toc</a></i></small>
@@ -426,10 +426,3 @@ Ref:    [1](https://github.com/google/googletest/blob/master/googletest/docs/pri
 	[8](https://stackoverflow.com/questions/3152326/google-test-parameterized-tests-which-use-an-existing-test-fixture-class),
 	[9](https://stackoverflow.com/questions/47354280/what-is-the-best-way-of-testing-private-methods-with-googletest/47358700),
 	[10](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googletest/samples/sample6_unittest.cc)
-
-
-
-
-
-
-
