@@ -1,4 +1,3 @@
-- [Google Test, Google Mocking and Test Driven Development Sample](#google-test--google-mocking-and-test-driven-development-sample)
 - [Google Test](#google-test)
   * [Assertions](#assertions)
     + [Binary Comparison](#binary-comparison)
@@ -8,12 +7,11 @@
   * [Test Fixtures](#test-fixtures)
       - [SetUp()](#setup--)
       - [TearDown()](#teardown--)
-  * [Google Mock](#google-mock)
   * [Google Test XML report](#google-test-xml-report)
-  * [Testing Multi-Threaded Code](#testing-multi-threaded-code)
+- [Google Mock](#google-mock)
+- [Testing Multi-Threaded Code](#testing-multi-threaded-code)
 - [Test-Driven Development (TDD)](#test-driven-development--tdd-)
 
-# Google Test, Google Mocking and Test Driven Development Sample
 This repository contains snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
 
 # Google Test
@@ -170,7 +168,13 @@ TEST_F(FooTest,hasString)
 }
 ```
 
-## Google Mock
+## Google Test XML report
+
+```
+<test executable> --gtest_output=xml:<filename>
+```
+
+# Google Mock
 Let say you have a component which use an interface and you interested to test the component and not the interface. For example your interface would be a class called `databaseConnect` which can connect you to sql server, mysql server, sqlite, etc and your data access layer class would called 
 `databaseLayer`
 
@@ -206,13 +210,9 @@ The destructor of interface class must be virtual, as is the case for all classe
 
 
 
-## Google Test XML report
 
-```
-<test executable> --gtest_output=xml:<filename>
-```
 
-## Testing Multi-Threaded Code
+# Testing Multi-Threaded Code
 
 
 # Test-Driven Development (TDD) 
