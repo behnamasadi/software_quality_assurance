@@ -1,3 +1,18 @@
+- [Google Test, Google Mocking and Test Driven Development Sample](#google-test--google-mocking-and-test-driven-development-sample)
+- [Google Test](#google-test)
+  * [Assertions](#assertions)
+    + [Binary Comparison](#binary-comparison)
+    + [User Defined Type](#user-defined-type)
+    + [String Comparison](#string-comparison)
+  * [Simple Tests](#simple-tests)
+  * [Test Fixtures](#test-fixtures)
+      - [SetUp()](#setup--)
+      - [TearDown()](#teardown--)
+  * [Google Mock](#google-mock)
+  * [Google Test XML report](#google-test-xml-report)
+  * [Testing Multi-Threaded Code](#testing-multi-threaded-code)
+- [Test-Driven Development (TDD)](#test-driven-development--tdd-)
+
 # Google Test, Google Mocking and Test Driven Development Sample
 This repository contains snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
 
@@ -206,6 +221,7 @@ The destructor of interface class must be virtual, as is the case for all classe
 [![Build Status](https://travis-ci.org/behnamasadi/gtest_gmock.svg?branch=master)](https://travis-ci.org/behnamasadi/gtest_gmock)
 ![alt text](https://img.shields.io/badge/license-BSD-blue.svg)
 
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 Ref:    [1](https://github.com/google/googletest/blob/master/googletest/docs/primer.md),
 	[2](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googlemock/docs/cook_book.md#MockingNonVirtualMethods),
 	[3](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googlemock/docs/for_dummies.md),
