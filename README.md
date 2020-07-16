@@ -12,6 +12,7 @@
 - [Google Mock](#google-mock)
   * [Writing the Mock Class](#writing-the-mock-class)
   * [Writting the Test](#writting-the-test)
+  * [Mocking Non-virtual Methods](#mocking-non-virtual-methods)
   * [ON_CALL vs EXPECT_CALL](#on-call-vs-expect-call)
   * [Matchers](#matchers)
   * [Common Matchers](#common-matchers)
@@ -22,6 +23,7 @@
   * [Where to Place Mocked Interfaces Code](#where-to-place-mocked-interfaces-code)
 - [Testing Multi-Threaded Code](#testing-multi-threaded-code)
 - [Test-Driven Development (TDD)](#test-driven-development--tdd-)
+
 
 This repository contains snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
 
