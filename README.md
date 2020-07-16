@@ -306,6 +306,86 @@ TEST(CoinFlipper, flip)
 }
 
 ```
+
+An other example:
+```
+EXPECT_CALL(*rng_ptr, generate(0.0,1.0))
+	.Times(5)
+	.WillOnce(Return(0.15))
+	.WillOnce(Return(0.35))
+	.WillRepeatedly(Return(0.75));
+```
+
+## Mocking Non-virtual Methods
+gMock can mock non-virtual functions to be used in Hi-perf dependency injection. To achieve this, you have to create a mock class that 
+has functions with the same signature of your real class. You dont inherite from your real class and 
+your mock class will be unrelated to the real class.
+Now have to templatize your consumer class (your consumer class has an intance of your real class). In the production you send an instance 
+of real class and during testing you send an instance of mock class;
+
+
+Here your class has no virtual function:
+```
+class RealClass
+{
+public:
+    int generate()
+    {
+        return 10;
+    }
+};
+```
+
+We mock the real class with all functions:
+```
+class MockRealClass
+{
+public:
+    MOCK_METHOD(int , generate,());
+};
+```
+Here we templatize the consumer class:
+```
+template<class T>
+class Consumer
+{
+    std::shared_ptr<T> m_numberGenerator;
+public:
+    Consumer(std::shared_ptr<T> numberGenerator)
+    {
+      m_numberGenerator=numberGenerator;
+    }
+    int multiplier(int n)
+    {
+        return n* m_numberGenerator->generate();
+    }
+};
+```
+During the test we send an instance of mock class and during production we send an instance of real class:
+```
+TEST(Consumer, multiplier)
+{
+    // 1) Create mock objects (collaborators)
+    std::shared_ptr<MockRealClass> MockRealClassObject_ptr(new MockRealClass);
+
+    // 2) Specify your expectations of them
+    EXPECT_CALL(*MockRealClassObject_ptr, generate())
+    .Times(AtLeast(1))
+    .WillOnce(Return(5));
+
+    // 3) Construct object(s) under test, passing mocks
+    Consumer<MockRealClass> ConsumerObject(MockRealClassObject_ptr);
+
+    // 4) Run code under test
+    int n=3;
+    int result= ConsumerObject.multiplier(n);
+
+    // 5) Check output (using Google Test or some other framework)
+    EXPECT_EQ(15, result);
+}
+```
+
+
 ## ON_CALL vs EXPECT_CALL
 
 ## Matchers
@@ -420,9 +500,9 @@ Ref:    [1](https://github.com/google/googletest/blob/master/googletest/docs/pri
 	[3](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googletest/docs/advanced.md),
 	[4](https://github.com/google/googletest/blob/master/googlemock/docs/cook_book.md),
 	[5](https://github.com/google/googletest/blob/master/googlemock/docs/cheat_sheet.md),
-	[5](http://donsoft.io/gmock-presentation/),
-	[6](https://github.com/davidstutz/googlemock-example),
-	[7](https://medium.com/foxguard-development/google-test-and-google-mock-20a7e416f93e),
-	[8](https://stackoverflow.com/questions/3152326/google-test-parameterized-tests-which-use-an-existing-test-fixture-class),
-	[9](https://stackoverflow.com/questions/47354280/what-is-the-best-way-of-testing-private-methods-with-googletest/47358700),
-	[10](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googletest/samples/sample6_unittest.cc)
+	[6](http://donsoft.io/gmock-presentation/),
+	[7](https://github.com/davidstutz/googlemock-example),
+	[8](https://medium.com/foxguard-development/google-test-and-google-mock-20a7e416f93e),
+	[9](https://stackoverflow.com/questions/3152326/google-test-parameterized-tests-which-use-an-existing-test-fixture-class),
+	[10](https://stackoverflow.com/questions/47354280/what-is-the-best-way-of-testing-private-methods-with-googletest/47358700),
+	[11](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googletest/samples/sample6_unittest.cc)

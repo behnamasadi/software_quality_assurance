@@ -142,10 +142,6 @@ TEST(Consumer, multiplier)
     EXPECT_EQ(15, result);
 }
 
-
-
-
-
 class databaseConnect
 {
 public:
