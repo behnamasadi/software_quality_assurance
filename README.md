@@ -1,3 +1,4 @@
+- [Project Structure](#project-structure)
 - [Google Test](#google-test)
   * [Assertions](#assertions)
     + [Binary Comparison](#binary-comparison)
@@ -8,12 +9,10 @@
       - [SetUp()](#setup--)
       - [TearDown()](#teardown--)
   * [Google Test XML report](#google-test-xml-report)
-  * [Parameterised Test (Template class parameters)](#parameterised-test--template-class-parameters-)
 - [Google Mock](#google-mock)
   * [Writing the Mock Class](#writing-the-mock-class)
   * [Writting the Test](#writting-the-test)
   * [Mocking Non-virtual Methods](#mocking-non-virtual-methods)
-  * [ON_CALL vs EXPECT_CALL](#on-call-vs-expect-call)
   * [Matchers](#matchers)
   * [Common Matchers](#common-matchers)
     + [Defining Matchers](#defining-matchers)
@@ -21,13 +20,16 @@
   * [Common Actions](#common-actions)
     + [Defining Actions](#defining-actions)
   * [Where to Place Mocked Interfaces Code](#where-to-place-mocked-interfaces-code)
+  * [Mocking Private or Protected Methods](#mocking-private-or-protected-methods)
+  * [Mocking Class Templates](#mocking-class-templates)
 - [Testing Multi-Threaded Code](#testing-multi-threaded-code)
 - [Test-Driven Development (TDD)](#test-driven-development--tdd-)
-
-
 This repository contains snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
 
 # Project Structure
+
+
+
 
 ```
 project  
@@ -41,19 +43,25 @@ project
 │
 ├──include  
 │    └──poject  
-│        └── lib.hpp  
+│        └──lib.hpp  
 ├──src  
-│    ├──CMakeLists.txt  
-│    ├──lib.cpp  
-│    └──include  
-│        └──private_header.hpp  
+│    ├──coin_flipper.cpp  
+│    ├──coin_flipper.hpp  
+│    ├──random_number_generator.hpp  
+│    └──uniform_random_number_generator.hpp
+│
 ├──apps  
 │    ├──CMakeLists.txt  
-│    └──app.cpp  
+│    └──flip_coin.cpp  
 ├──tests  
 │    ├──CMakeLists.txt  
 │    ├──project_test.cmake
-│    └──src  
+│    └──src
+│	 ├──assert_expect_tests.cpp
+│	 ├──gmock_test.cpp
+│	 ├──main.cpp
+│	 ├──test_driven_development.cpp
+│	 └──test_fixtures.cpp  
 ├──docs  
 │    └── CMakeLists.txt  
 ├──extern  
@@ -222,12 +230,6 @@ TEST_F(FooTest,hasString)
 
 ```
 <test executable> --gtest_output=xml:<filename>
-```
-
-## Parameterised Test (Template class parameters)
-```
-TYPED_TEST_CASE
-TYPED_TEST
 ```
 
 # Google Mock
@@ -425,7 +427,7 @@ TEST(Consumer, multiplier)
 ```
 
 
-## ON_CALL vs EXPECT_CALL
+
 
 ## Matchers
 Matchers are functions used to match mock inputs to their expected values:
@@ -522,6 +524,49 @@ and only tests that depend on the changed methods need to be fixed.
 
 2) you can introduce a thin layer `FooAdaptor` on top of `IFoo` and code to this new interface. Since you own `FooAdaptor`, you can absorb changes
  in Foo much more easily. While this is more work initially, carefully choosing the adaptor interface can make your code easier to write and more readable (a net win in the long run), as you can choose `FooAdaptor` to fit your specific domain much better than Foo does.
+
+
+## Mocking Private or Protected Methods
+C++ allows a subclass to change the access level of a virtual function in the base class.
+
+```
+class Foo
+{
+public:
+    virtual int somePublicMethod()=0;
+protected:
+    virtual int someProtectedMethod();
+private:
+    virtual int somePrivateMethod();
+};
+
+class MockFoo: public Foo
+{
+public:
+    MOCK_METHOD(int, somePublicMethod, ( ), (override));
+    MOCK_METHOD(int, someProtectedMethod, (), (override));
+    MOCK_METHOD(int, somePrivateMethod, (), (override));
+};
+```
+
+## Mocking Class Templates
+
+
+```
+template <typename T>
+class templatedInterface
+{
+public:
+    virtual T someFunction(T t)=0;
+};
+
+template <typename T>
+class MockedtemplatedInterface: public templatedInterface<T>
+{
+public:
+    MOCK_METHOD(T, someFunction, (T t), (override));
+};
+```
 
 # Testing Multi-Threaded Code
 

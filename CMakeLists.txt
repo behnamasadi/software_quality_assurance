@@ -19,7 +19,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     MESSAGE( STATUS "CMAKE_CTEST_COMMAND: " ${CMAKE_CTEST_COMMAND} )
 endif()
 
-add_executable(flip_coin apps/main.cpp)
-target_link_libraries(flip_coin ${PROJECT_SOURCE_DIR}/src/coin_flipper.cpp)
+add_subdirectory(apps)
 
 

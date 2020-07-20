@@ -71,6 +71,7 @@ TEST(CoinFlipper, multipleFlipping)
 }
 
 
+
 /////////////////////// Mocking Non-virtual Methods //////////////////////////
 class RealClass
 {
@@ -124,6 +125,7 @@ TEST(Consumer, multiplier)
     EXPECT_EQ(15, result);
 }
 
+///////////////////////////////////////////////////////////////////////////////
 class databaseConnect
 {
 public:
@@ -145,6 +147,43 @@ public:
     {
     }
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+class Foo
+{
+public:
+    virtual int somePublicMethod()=0;
+protected:
+    virtual int someProtectedMethod();
+private:
+    virtual int somePrivateMethod();
+};
+
+class MockFoo: public Foo
+{
+public:
+    MOCK_METHOD(int, somePublicMethod, ( ), (override));
+    MOCK_METHOD(int, someProtectedMethod, (), (override));
+    MOCK_METHOD(int, somePrivateMethod, (), (override));
+};
+
+///////////////////////////////////////////////////////////////////////////////////
+template <typename T>
+class templatedInterface
+{
+public:
+    virtual T someFunction(T t)=0;
+};
+
+template <typename T>
+class MockedtemplatedInterface: public templatedInterface<T>
+{
+public:
+    MOCK_METHOD(T, someFunction, (T t), (override));
+};
+
+///////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv)
 {
