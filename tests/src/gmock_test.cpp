@@ -3,33 +3,15 @@
 #include <string>
 #include <memory>
 
+#include "../../src/coin_flipper.hpp"
+#include "../../src/random_number_generator.hpp"
+
+
+
 using ::testing::Return;
 using ::testing::AtLeast;
 using ::testing::DefaultValue;
 
-class IRandomNumberGenerator
-{
-    public:
-    virtual ~IRandomNumberGenerator(){}
-        virtual double generate(double min,double  max)=0;
-};
-
-enum class FlipCoinResult{HEAD=0, TAIL=1};
-
-class CoinFlipper
-{
-    std::shared_ptr<IRandomNumberGenerator> m_RandomNumberGenerator;
-public:
-    CoinFlipper(std::shared_ptr<IRandomNumberGenerator> RandomNumberGenerator)
-    {
-        m_RandomNumberGenerator=RandomNumberGenerator;
-    }
-    FlipCoinResult flip()
-    {
-        double result=m_RandomNumberGenerator->generate(0.0,1.0);
-        return (result>0.5)? FlipCoinResult::HEAD:FlipCoinResult::TAIL;
-    }
-};
 
 class MockRandomNumberGenerator: public IRandomNumberGenerator
 {
@@ -141,10 +123,6 @@ TEST(Consumer, multiplier)
     // 5) Check output (using Google Test or some other framework)
     EXPECT_EQ(15, result);
 }
-
-
-
-
 
 class databaseConnect
 {

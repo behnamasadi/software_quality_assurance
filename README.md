@@ -27,6 +27,43 @@
 
 This repository contains snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
 
+# Project Structure
+
+```
+project  
+├──.gitignore  
+├──README.md  
+├──LICENCE.md  
+├──CMakeLists.txt  
+├──cmake  
+│    └──Modules
+│         └──FindGMock.cmake  
+│
+├──include  
+│    └──poject  
+│        └── lib.hpp  
+├──src  
+│    ├──CMakeLists.txt  
+│    ├──lib.cpp  
+│    └──include  
+│        └──private_header.hpp  
+├──apps  
+│    ├──CMakeLists.txt  
+│    └──app.cpp  
+├──tests  
+│    ├──CMakeLists.txt  
+│    ├──project_test.cmake
+│    └──src  
+├──docs  
+│    └── CMakeLists.txt  
+├──extern  
+|    └──googletest  
+└──scripts  
+     └──helper.py  
+```
+
+
+
 # Google Test
 
 When using googletest, you start by writing assertions (assertions are macros that resemble function calls). Tests use assertions to verify the tested code's behavior. 
@@ -507,4 +544,8 @@ Ref:    [1](https://github.com/google/googletest/blob/master/googletest/docs/pri
 	[8](https://medium.com/foxguard-development/google-test-and-google-mock-20a7e416f93e),
 	[9](https://stackoverflow.com/questions/3152326/google-test-parameterized-tests-which-use-an-existing-test-fixture-class),
 	[10](https://stackoverflow.com/questions/47354280/what-is-the-best-way-of-testing-private-methods-with-googletest/47358700),
-	[11](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googletest/samples/sample6_unittest.cc)
+	[11](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googletest/samples/sample6_unittest.cc),
+	[12](https://ctest-ext.readthedocs.io/en/v0.7.1/usage/project_script/),
+	[13](https://gitlab.kitware.com/cmake/community/-/wikis/doc/ctest/Testing-With-CTest),
+	[14](https://ctest-ext.readthedocs.io/en/v0.7.1/ci/travis/)
+
