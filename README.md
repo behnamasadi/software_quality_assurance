@@ -13,6 +13,7 @@
   * [Writing the Mock Class](#writing-the-mock-class)
   * [Writting the Test](#writting-the-test)
   * [Mocking Non-virtual Methods](#mocking-non-virtual-methods)
+  * [Delegating Calls to a Real Object/ delegating-to-fake/ Parent Class](#delegating-calls-to-a-real-object--delegating-to-fake--parent-class)
   * [Matchers](#matchers)
   * [Common Matchers](#common-matchers)
     + [Defining Matchers](#defining-matchers)
@@ -97,7 +98,7 @@ Usually `EXPECT_*` are preferred, as they allow more than one failure to be repo
 
 To provide a custom failure message, simply stream it into the macro using the << operator
 
-```
+```cpp
 ASSERT_EQ(x, y) << "Your custom message.";
 ```
 ### Binary Comparison
@@ -122,12 +123,12 @@ Fatal assertion          | Nonfatal assertion       | Verifies
 
 ### User Defined Type
 These assertions can work with a user-defined type, but only if you define the corresponding comparison operator (e.g., == or <).
-```
+```cpp
 Mystruct myobj1,myobj2;
 ASSERT_EQ(myobj1,myobj2); // you need to define the corresponding comparison operator (e.g., == or <)
 ```
 Since this is discouraged by the Google C++ Style Guide, you may need to use `ASSERT_TRUE()` or `EXPECT_TRUE()` to assert the equality of two objects of a user-defined type.
-```
+```cpp
 Mystruct myobj1,myobj2;
 ASSERT_TRUE(myobj1== myobj2); 
 ```
@@ -153,7 +154,7 @@ two `string` objects, use `EXPECT_EQ`, `EXPECT_NE`, and etc instead.
 ## Simple Tests
 googletest groups the test results by test suites, so logically related tests should be in the same test suite; in other words, the first argument to their `TEST()` should be the same. 
 
-```c++
+```cpp
 TEST(TestSuiteName, TestName1) {
   
 }
@@ -165,7 +166,7 @@ TEST(TestSuiteName, TestName2) {
 
 and your main function:
 
-```
+```cpp
 int main(int argc, char **argv) 
 {
     testing::InitGoogleTest(&argc, argv);
@@ -187,7 +188,7 @@ Code here will be called immediately after each test (right before the destructo
 
 
 
-```
+```cpp
 class FooTest : public ::testing::Test {
 protected:
     Foo * myfoo_ptr;
@@ -218,7 +219,7 @@ protected:
 ```
 
 When using a fixture, use TEST_F() instead of TEST() as it allows you to access objects and subroutines in the test fixture:
-```
+```cpp
 TEST_F(FooTest,hasString)
 {
     EXPECT_TRUE(myfoo_ptr->hasString("bamboo","boo"));
@@ -227,7 +228,7 @@ TEST_F(FooTest,hasString)
 
 ## Google Test XML report
 
-```
+```cpp
 <test executable> --gtest_output=xml:<filename>
 ```
 
@@ -265,7 +266,7 @@ CoinFlipper..> MockRandomNumberGenerator
 A mock should inherit from an abstract class, generally, that defines a virtual destructor explicitly and defines a pure virtual function for any method that will be needed by the mock objects. In other words, you can't mock non-virtual methods.
 The destructor of interface class must be virtual, as is the case for all classes you intend to inherit from - otherwise the destructor of the derived class will not be called when you delete an object through a base pointer, and you'll get corrupted program states like memory leaks.)
 
-```
+```cpp
 class IRandomNumberGenerator
 {
     public:
@@ -297,12 +298,13 @@ public:
 
 2) For every vitual function use the following macros:
 
-```
+```cpp
 MOCK_METHOD[n](methodName, returnType(arg1Type, ..., argNType));
 MOCK_CONST_METHOD[n](methodName, returnType(arg1Type, ..., argNType));
 ```
 So you should have something like this in your code:
-```
+
+```cpp
 class MockRandomNumberGenerator: public IRandomNumberGenerator
 {
 public:
@@ -313,7 +315,8 @@ public:
 ## Writting the Test 
 
 You test should have the follwoing format:
-```
+
+```cpp
 EXPECT_CALL(mockObject, method(arg1Matcher, ..., argNMatcher))
     .With(multiArgumentMatcher)  // 0 or 1
     .Times(cardinality)          // 0 or 1
@@ -324,7 +327,8 @@ EXPECT_CALL(mockObject, method(arg1Matcher, ..., argNMatcher))
     .RetiresOnSaturation();      // 0 or 1
 ```
 For example:
-```
+
+```cpp
 TEST(CoinFlipper, flip)
 {
     // 1) Create mock objects
@@ -348,7 +352,8 @@ TEST(CoinFlipper, flip)
 ```
 
 An other example:
-```
+
+```cpp
 EXPECT_CALL(*rng_ptr, generate(0.0,1.0))
 	.Times(5)
 	.WillOnce(Return(0.15))
@@ -365,7 +370,8 @@ of real class and during testing you send an instance of mock class;
 
 
 Here your class has no virtual function:
-```
+
+```cpp
 class RealClass
 {
 public:
@@ -377,15 +383,17 @@ public:
 ```
 
 We mock the real class with all functions:
-```
+
+```cpp
 class MockRealClass
 {
 public:
     MOCK_METHOD(int , generate,());
 };
 ```
+
 Here we templatize the consumer class:
-```
+```cpp
 template<class T>
 class Consumer
 {
@@ -401,8 +409,9 @@ public:
     }
 };
 ```
+
 During the test we send an instance of mock class and during production we send an instance of real class:
-```
+```cpp
 TEST(Consumer, multiplier)
 {
     // 1) Create mock objects (collaborators)
@@ -425,8 +434,225 @@ TEST(Consumer, multiplier)
 }
 ```
 
+## Delegating Calls to a Real Object/ delegating-to-fake/ Parent Class
+Sometimes the behavior of the mock classes might differ from the real objects. This could be intentional i.e for simulating an error such that you can test the error handling code. If your mocks have different behaviors than the real objects by mistake, you could end up with code that passes the tests but fails in production. Imagine you have the following interface:
+
+```cpp
+class Foo
+{
+public:
+    virtual ~Foo() {}
+    virtual char DoThis(int n) = 0;
+    virtual void DoThat(const char* s, int* p) = 0;
+};
+```
+
+You can use the followings:
+
+- Delegating to fake
+Now you want to mock this interface such that you it uses `FakeFoo` for the default behavior.
+When you define the mock class using gMock, you can have it delegate its default action to a fake class you already have, using this pattern.
+```cpp
+namespace Fake
+{
+class Foo
+{
+public:
+    virtual ~Foo() {}
+    virtual char DoThis(int n) = 0;
+    virtual void DoThat(const char* s, int* p) = 0;
+};
+
+class FakeFoo : public Foo
+{
+public:
+    char DoThis(int n) override
+    {
+        std::cout<<"DoThis from FakeFoo " <<std::endl;
+        return (n > 0) ? '+' : (n < 0) ? '-' : '0';
+    }
+
+    void DoThat(const char* s, int* p) override
+    {
+        std::cout<<"DoThat from FakeFoo " <<std::endl;
+        *p = strlen(s);
+    }
+};
+
+class MockFoo : public Foo {
+public:
+// Normal mock method definitions using gMock.
+/*
+(Old) MOCK_METHOD1(Bar, double(std::string s));
+(New) MOCK_METHOD(double, Bar, (std::string s), (override));
+*/
+
+    //MOCK_METHOD1(DoThis,char(int));
+    MOCK_METHOD(char, DoThis, (int), (override));
+    MOCK_METHOD(void, DoThat, (const char* s, int* p), (override));
+
+// Delegates the default actions of the methods to a FakeFoo object.
+// This must be called *before* the custom ON_CALL() statements.
+void DelegateToFake()
+{
+    ON_CALL(*this, DoThis).WillByDefault([this](int n) {  return fake_.DoThis(n); });
+    ON_CALL(*this, DoThat).WillByDefault([this](const char* s, int* p) {fake_.DoThat(s, p); });
+}
+
+private:
+    FakeFoo fake_;  // Keeps an instance of the fake in the mock.
+};
+
+}
+
+```
 
 
+```cpp
+
+TEST(TestFoo, DelegatingToFake)
+{
+    Fake::MockFoo foo;
+
+    foo.DelegateToFake();  // Enables the fake for delegation.
+
+    // Put your ON_CALL(foo, ...)s here, if any.
+
+    // No action specified, meaning to use the default action.
+    EXPECT_CALL(foo, DoThis(5));
+    EXPECT_CALL(foo, DoThat(_, _));
+
+    int n = 0;
+    EXPECT_EQ('+', foo.DoThis(5));  // FakeFoo::DoThis() is invoked.
+    foo.DoThat("Hi", &n);  // FakeFoo::DoThat() is invoked.
+    EXPECT_EQ(2, n);
+}
+```
+
+
+
+- Delegating to real
+
+You can use the `delegating to real`  to ensure that your mock has the same functionality as the real object while keeping 
+the ability to validate calls. This technique is very similar to the above one (`delegating to fake`), the difference is that 
+we use a real object instead of a fake.
+
+```cpp
+namespace Real
+{
+class Foo
+{
+public:
+    virtual ~Foo() {}
+    char DoThis(int n)
+    {
+        std::cout<<"DoThis from RealFoo " <<std::endl;
+        return (n > 0) ? '+' : (n < 0) ? '-' : '0';
+    }
+    void DoThat(const char* s, int* p)
+    {
+        std::cout<<"DoThat from RealFoo " <<std::endl;
+        *p = strlen(s);
+    }
+};
+
+class MockFoo : public Foo
+{
+public:
+    MockFoo()
+    {
+        // By default, all calls are delegated to the real object.
+        ON_CALL(*this, DoThis).WillByDefault([this](int n) {return real_.DoThis(n); });
+        ON_CALL(*this, DoThat).WillByDefault([this](const char* s, int* p) {real_.DoThat(s, p);});
+    }
+    MOCK_METHOD(char, DoThis, (int) );
+    MOCK_METHOD(void, DoThat, (const char* s, int* p));
+
+
+private:
+    Foo real_;
+};
+
+}
+
+TEST(TestFoo, DelegatingToReal)
+{
+    int n = 0;
+    Real::MockFoo mock;
+    EXPECT_CALL(mock, DoThis(5)).Times(1);
+    EXPECT_CALL(mock, DoThat("Hi",&n)).Times(AtLeast(1));
+
+    EXPECT_EQ('+', mock.DoThis(5));  // ::DoThis() is invoked.
+    mock.DoThat("Hi", &n);  // ::DoThat() is invoked.
+    EXPECT_EQ(2, n);
+}
+
+
+
+```
+
+- Delegating to Parent Class
+Ideally, you should code to interfaces, whose methods are all pure virtual. In reality, sometimes you do need to mock a virtual method that is not pure (i.e, it already has an implementation). For example:
+
+```cpp
+namespace Parent 
+{
+class Foo 
+{
+public:
+    virtual ~Foo();
+
+    virtual void Pure(int n) = 0;
+    virtual int Concrete(const char* str) { /*...*/ }
+};
+
+class MockFoo : public Foo 
+{
+public:
+    // Mocking a pure method.
+    MOCK_METHOD(void, Pure, (int n), (override));
+    // Mocking a concrete method.  Foo::Concrete() is shadowed.
+    MOCK_METHOD(int, Concrete, (const char* str), (override));
+};
+}
+```
+
+Sometimes you may want to call Foo::Concrete() instead of MockFoo::Concrete(). Perhaps you want to do it as part of a stub action, or perhaps your test doesn't need to mock Concrete() at all (but it would be oh-so painful to have to define a new mock class whenever you don't need to mock one of its methods). The trick is to leave a back door in your mock class for accessing the real methods in the base class:
+
+```cpp
+namespace Parent
+{
+class Foo
+{
+public:
+
+    virtual int DoThat() 
+    { 
+        std::cout<<"DoThat from Parent " <<std::endl;
+        return 42; 
+    }
+};
+
+class MockFoo : public Foo
+{
+public:
+    MOCK_METHOD0(DoThat, int());
+};
+
+TEST(TestFoo, DelegatingToParent)
+{
+    Parent::MockFoo mock;
+    EXPECT_CALL(mock, DoThat()).WillOnce([&mock](){
+        return mock.Foo::DoThat(); // trick is here
+    });
+
+    EXPECT_EQ(mock.DoThat(), 2);
+}
+}
+```
+
+
+Full example available [here](tests/src/delegating_calls.cpp) 
 
 ## Matchers
 Matchers are functions used to match mock inputs to their expected values:

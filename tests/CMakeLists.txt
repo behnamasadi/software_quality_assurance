@@ -42,6 +42,10 @@ add_executable(test_fixtures src/test_fixtures.cpp)
 target_link_libraries(test_fixtures -pthread ${GTEST_BOTH_LIBRARIES} ${GMOCK_BOTH_LIBRARIES})
 gtest_discover_tests(test_fixtures)
 
+add_executable(delegating_calls src/delegating_calls.cpp)
+target_link_libraries(delegating_calls -pthread ${GTEST_BOTH_LIBRARIES} ${GMOCK_BOTH_LIBRARIES})
+gtest_discover_tests(delegating_calls)
+
 ############################################Test Driven Development############################################
 
 ADD_EXECUTABLE(test_driven_development src/test_driven_development.cpp)
