@@ -13,7 +13,7 @@
   * [Writing the Mock Class](#writing-the-mock-class)
   * [Writting the Test](#writting-the-test)
   * [Mocking Non-virtual Methods](#mocking-non-virtual-methods)
-  * [Delegating Calls to a Real Object/ delegating-to-fake/ Parent Class](#delegating-calls-to-a-real-object--delegating-to-fake--parent-class)
+  * [Delegating Calls to a Real Class/ Fake Class/ Parent Class](#delegating-calls-to-a-real-class--fake-class--parent-class)
   * [Matchers](#matchers)
   * [Common Matchers](#common-matchers)
     + [Defining Matchers](#defining-matchers)
@@ -434,7 +434,7 @@ TEST(Consumer, multiplier)
 }
 ```
 
-## Delegating Calls to a Real Object/ delegating-to-fake/ Parent Class
+## Delegating Calls to a Real Class/ Fake Class/ Parent Class
 Sometimes the behavior of the mock classes might differ from the real objects. This could be intentional i.e for simulating an error such that you can test the error handling code. If your mocks have different behaviors than the real objects by mistake, you could end up with code that passes the tests but fails in production. Imagine you have the following interface:
 
 ```cpp
