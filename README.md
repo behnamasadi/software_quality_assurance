@@ -13,7 +13,10 @@
   * [Writing the Mock Class](#writing-the-mock-class)
   * [Writting the Test](#writting-the-test)
   * [Mocking Non-virtual Methods](#mocking-non-virtual-methods)
-  * [Delegating Calls to a Real Class, Fake, Parent Class](#delegating-calls-to-a-real-class--fake--parent-class)
+  * [Delegating Calls](#delegating-calls)
+    + [Delegating Calls to Fake Class](#delegating-calls-to-fake-class)
+    + [Delegating Calls to Real Class](#delegating-calls-to-real-class)
+    + [Delegating Calls to Parent Class](#delegating-calls-to-parent-class)
   * [Matchers](#matchers)
   * [Common Matchers](#common-matchers)
     + [Defining Matchers](#defining-matchers)
@@ -434,7 +437,7 @@ TEST(Consumer, multiplier)
 }
 ```
 
-## Delegating Calls to a Real Class, Fake, Parent Class
+## Delegating Calls
 Sometimes the behavior of the mock classes might differ from the real objects. This could be intentional i.e for simulating an error such that you can test the error handling code. If your mocks have different behaviors than the real objects by mistake, you could end up with code that passes the tests but fails in production. Imagine you have the following interface:
 
 ```cpp
@@ -449,7 +452,7 @@ public:
 
 You can use the followings:
 
-- Delegating to fake
+### Delegating Calls to Fake Class
 Now you want to mock this interface such that you it uses `FakeFoo` for the default behavior.
 When you define the mock class using gMock, you can have it delegate its default action to a fake class you already have, using this pattern.
 ```cpp
@@ -531,7 +534,7 @@ TEST(TestFoo, DelegatingToFake)
 
 
 
-- Delegating to real
+### Delegating Calls to Real Class
 
 You can use the `delegating to real`  to ensure that your mock has the same functionality as the real object while keeping 
 the ability to validate calls. This technique is very similar to the above one (`delegating to fake`), the difference is that 
@@ -591,7 +594,7 @@ TEST(TestFoo, DelegatingToReal)
 
 ```
 
-- Delegating to Parent Class
+### Delegating Calls to Parent Class
 Ideally, you should code to interfaces, whose methods are all pure virtual. In reality, sometimes you do need to mock a virtual method that is not pure (i.e, it already has an implementation). For example:
 
 ```cpp
