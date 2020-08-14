@@ -176,7 +176,7 @@ public:
     virtual int DoThat()
     {
         std::cout<<"DoThat from Parent " <<std::endl;
-        return 42;
+        return 2;
     }
 };
 
@@ -193,7 +193,7 @@ TEST(TestFoo, DelegatingToParent)
         return mock.Foo::DoThat(); // trick is here
     });
 
-    EXPECT_EQ(mock.DoThat(), 42);
+    EXPECT_EQ(mock.DoThat(), 2);
 }
 }
 

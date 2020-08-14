@@ -598,31 +598,6 @@ TEST(TestFoo, DelegatingToReal)
 Ideally, you should code to interfaces, whose methods are all pure virtual. In reality, sometimes you do need to mock a virtual method that is not pure (i.e, it already has an implementation). For example:
 
 ```cpp
-namespace Parent 
-{
-class Foo 
-{
-public:
-    virtual ~Foo();
-
-    virtual void Pure(int n) = 0;
-    virtual int Concrete(const char* str) { /*...*/ }
-};
-
-class MockFoo : public Foo 
-{
-public:
-    // Mocking a pure method.
-    MOCK_METHOD(void, Pure, (int n), (override));
-    // Mocking a concrete method.  Foo::Concrete() is shadowed.
-    MOCK_METHOD(int, Concrete, (const char* str), (override));
-};
-}
-```
-
-Sometimes you may want to call Foo::Concrete() instead of MockFoo::Concrete(). Perhaps you want to do it as part of a stub action, or perhaps your test doesn't need to mock Concrete() at all (but it would be oh-so painful to have to define a new mock class whenever you don't need to mock one of its methods). The trick is to leave a back door in your mock class for accessing the real methods in the base class:
-
-```cpp
 namespace Parent
 {
 class Foo
@@ -632,7 +607,7 @@ public:
     virtual int DoThat() 
     { 
         std::cout<<"DoThat from Parent " <<std::endl;
-        return 42; 
+        return 2; 
     }
 };
 
