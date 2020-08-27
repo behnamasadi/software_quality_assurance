@@ -25,6 +25,8 @@ install:
   - cd build
   - cmake -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX:PATH=~/usr .. && make -j8 all install 
 
+  - cd ~
+  - apt-get install cppcheck ggcov lcov valgrind kcachegrind
 
 # Enable C++ support
 language: cpp

@@ -40,7 +40,18 @@
 
 
 
-This repository contains snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
+This repository is about quality assurance of c++ code.It contains testing in diffrent levels `Unit testing`, `Integration testing`, `Regression testing` and `Acceptance tests` and cppcheck and code coverage.
+snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
+
+Unit testing - You unit test each individual piece of code. Think each file or class.
+
+Integration testing - When putting several units together that interact you need to conduct Integration testing to make sure that integrating these units together has not introduced any errors.
+
+Regression testing - after integrating (and maybe fixing) you should run your unit tests again. This is regression testing to ensure that further changes have not broken any units that were already tested. The unit testing you already did has produced the unit tests that can be run again and again for regression testing.
+
+Acceptance tests - when a user/customer/business receive the functionality they (or your test department) will conduct Acceptance tests to ensure that the functionality meets their requirements.
+
+
 
 # Project Structure
 
@@ -815,7 +826,7 @@ This will generate a report in `./coverage/index.html`.
 
 
 
-# Code Coverage with Clang
+# Code Coverage with Clang-tidy
 
 
 # Cppcheck
