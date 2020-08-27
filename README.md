@@ -28,6 +28,16 @@
   * [Mocking Class Templates](#mocking-class-templates)
 - [Testing Multi-Threaded Code](#testing-multi-threaded-code)
 - [Test-Driven Development (TDD)](#test-driven-development--tdd-)
+- [Code Coverage with GCC](#code-coverage-with-gcc)
+- [Code Coverage with Clang](#code-coverage-with-clang)
+- [Cppcheck](#cppcheck)
+  * [Integrating Cppcheck into CMake](#integrating-cppcheck-into-cmake)
+    + [Suppression](#suppression)
+    + [exitcode](#exitcode)
+    + [XML output](#xml-output)
+    + [Excluding files](#excluding-files)
+- [Valgrind call-graph](#valgrind-call-graph)
+
 
 
 This repository contains snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
@@ -776,6 +786,115 @@ public:
 # Test-Driven Development (TDD) 
 
 
+# Code Coverage with GCC
+Here I have used `gcov`, `ggcov` and `lcov` for my code coverage.
+```
+sudo apt-get install ggcov lcov
+```
+Obtain a copy of `CodeCoverage.cmake` from [here](https://github.com/bilke/cmake-modules/blob/master/CodeCoverage.cmake) and copy it into 
+`cmake/Modules/`. Then add the followings to your CMakeLists.txt
+
+```
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+if(CMAKE_COMPILER_IS_GNUCXX)
+    include(CodeCoverage) # this will include CodeCoverage.cmake
+endif()
+
+append_coverage_compiler_flags()
+setup_target_for_coverage_lcov(
+        NAME coverage
+        EXECUTABLE ctest -j ${n_cores} # Executable in PROJECT_BINARY_DIR
+        DEPENDENCIES
+        <your-executable_targes1> <your-executable_targes1>)
+```
+Now run:
+```
+make coverage && firefox ./coverage/index.html
+```
+This will generate a report in `./coverage/index.html`.
+
+
+
+# Code Coverage with Clang
+
+
+# Cppcheck
+Cppcheck is an open-source static analysis tool for C/C++. Static analysis is the analysis of code without executing it. To check a single file
+you can use the following:
+```
+cppcheck  <your-source-file>.cpp 
+```
+
+If have more than one file with lots of header and libraries, you have to pass these details to Cppcheck as well. The easiest way to do this is 
+to use a [compilation database](http://clang.llvm.org/docs/JSONCompilationDatabase.html). cmake can create that for you. All you have to do
+ is just to set `CMAKE_EXPORT_COMPILE_COMMANDS`: 
+
+```
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON 
+```
+
+or in the CMakeLists.txt
+
+```
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON )
+```
+This will generate the file `compile_commands.json`. Now run Cppcheck like this:
+```
+cppcheck --project=compile_commands.json
+```
+
+To ignore certain folders you can use -i. This will skip analysis of source files in the foo folder.
+```
+cppcheck --project=compile_commands.json -ifoo
+```
+## Integrating Cppcheck into CMake
+First you need to add the path to `FindCppcheck.cmake` to your CMakeLists.txt:
+```
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+```
+
+### Suppression
+You can enable/ disable some warnings in Cppcheck using a suppression file. Default value for a suppressions file in `.cppcheck_suppressions`. To specify you custom file use:
+
+```
+set(CPPCHECK_SUPPRESSIONS ${PROJECT_ROOT_DIR}/CppCheckSuppressions.txt)
+```
+### exitcode
+
+When Cppcheck finds errors you can tell it what error code to use when exiting the program. With the above script the default exitcode is 1. To override this you can use the CPPCHECK_ERROR_EXITCODE_ARG. To set it to use the cppcheck default
+
+```
+set(CPPCHECK_ERROR_EXITCODE_ARG "")
+```
+
+### XML output
+You can set the output of the Cppcheck to XML so later on the result can be read by CI systems:
+ 
+```
+set(CPPCHECK_XML_OUTPUT "${PROJECT_BINARY_DIR}/analysis/cppcheck/cppcheck_analysis.xml")
+```
+
+
+### Excluding files
+To exclude a file or folder you can create a list CPPCHECK_EXCLUDES, this is very usefull for excluding third partiy and libraries
+
+```
+set(CPPCHECK_EXCLUDES
+    ${CMAKE_SOURCE_DIR}/3rd_party
+    ${CMAKE_BINARY_DIR}/
+)
+```
+
+# Valgrind call-graph 
+Callgrind is a profiling tool that records the call history among functions in a program's run as a call-graph. 
+By default, the collected data consists of the number of instructions executed, their relationship to source lines, 
+the caller/callee relationship between functions. To start a profile run for a program, execute:
+
+`valgrind --tool=callgrind ./<your-binary>`.
+
+It will generate a file called `callgrind.out.x`. You can then use `kcachegrind` tool to read this file. It will give you a graphical analysis of things with results like which lines cost how much.
+
+
 [![Build Status](https://travis-ci.com/behnamasadi/gtest_gmock.svg?branch=master)](https://travis-ci.com/behnamasadi/gtest_gmock)
 ![alt text](https://img.shields.io/badge/license-BSD-blue.svg)
 
@@ -795,5 +914,10 @@ Ref:    [1](https://github.com/google/googletest/blob/master/googletest/docs/pri
 	[11](https://chromium.googlesource.com/external/github.com/google/googletest/+/HEAD/googletest/samples/sample6_unittest.cc),
 	[12](https://ctest-ext.readthedocs.io/en/v0.7.1/usage/project_script/),
 	[13](https://gitlab.kitware.com/cmake/community/-/wikis/doc/ctest/Testing-With-CTest),
-	[14](https://ctest-ext.readthedocs.io/en/v0.7.1/ci/travis/)
-
+	[14](https://ctest-ext.readthedocs.io/en/v0.7.1/ci/travis/),
+	[15](http://www.stablecoder.ca/2018/01/15/code-coverage.html),
+	[16](https://stackoverflow.com/questions/13116488/detailed-guide-on-using-gcov-with-cmake-cdash),
+	[17](http://cppcheck.sourceforge.net/manual.html#cmake),
+	[18](https://valgrind.org/docs/manual/cl-manual.html),
+	[19](https://hopstorawpointers.blogspot.com/2018/11/integrating-cppcheck-and-cmake.html),
+	[20](https://github.com/ttroy50/cmake-examples/tree/master/04-static-analysis/cppcheck)
