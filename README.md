@@ -915,7 +915,7 @@ the caller/callee relationship between functions. To start a profile run for a p
 It will generate a file called `callgrind.out.x`. You can then use `kcachegrind` tool to read this file. It will give you a graphical analysis of things with results like which lines cost how much.
 
 
-[![Build Status](https://travis-ci.com/behnamasadi/gtest_gmock.svg?branch=master)](https://travis-ci.com/behnamasadi/gtest_gmock)
+[![Build Status](https://travis-ci.com/behnamasadi/software_quality_assurance.svg?branch=master)](https://travis-ci.com/behnamasadi/software_quality_assurance)
 ![alt text](https://img.shields.io/badge/license-BSD-blue.svg)
 
 <small><i>TOC generated with <a href='http://ecotrust-canada.github.io/markdown-toc/'>markdown-toc</a></i></small>
