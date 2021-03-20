@@ -43,6 +43,15 @@
 This repository is about quality assurance of c++ code.It contains testing in diffrent levels `Unit testing`, `Integration testing`, `Regression testing` and `Acceptance tests` and cppcheck and code coverage.
 snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
 
+
+Software testing includes many different forms of tests:
+
+1) unit tests
+2) integration tests
+3) regression tests
+4) acceptance tests
+5) performance tests
+
 Unit testing - You unit test each individual piece of code. Think each file or class.
 
 Integration testing - When putting several units together that interact you need to conduct Integration testing to make sure that integrating these units together has not introduced any errors.
