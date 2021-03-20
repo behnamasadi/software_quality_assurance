@@ -23,7 +23,7 @@ install:
   - cd googletest
   - mkdir build
   - cd build
-  - cmake -DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX:PATH=~/usr .. && make -j8 all install 
+  - cmake -DCMAKE_CXX_FLAGS=-std=c++1z -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX:PATH=~/usr .. && make -j8 all install 
 
   - cd ~
   - sudo apt-get install cppcheck ggcov lcov valgrind kcachegrind
@@ -35,8 +35,8 @@ script:
   - rm -rf gflags
   - rm -rf glog
   - rm -rf googletest
-  - git clone https://github.com/behnamasadi/gtest_gmock/
-  - cd gtest_gmock
+  - git clone https://github.com/behnamasadi/software_quality_assurance/
+  - cd software_quality_assurance
   - mkdir build
   - cd build
   - cmake .. && make -j8
