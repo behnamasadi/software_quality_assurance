@@ -8,6 +8,9 @@
   * [Test Fixtures](#test-fixtures)
       - [SetUp()](#setup--)
       - [TearDown()](#teardown--)
+      - [static  SetUpTestSuite()/ TearDownTestSuite()](#static--setuptestsuite----teardowntestsuite--)
+  * [Global Set-Up and Tear-Down](#global-set-up-and-tear-down)
+  * [Running Tests and Patterns](#running-tests-and-patterns)
   * [Google Test XML report](#google-test-xml-report)
 - [Google Mock](#google-mock)
   * [Writing the Mock Class](#writing-the-mock-class)
@@ -29,7 +32,7 @@
 - [Testing Multi-Threaded Code](#testing-multi-threaded-code)
 - [Test-Driven Development (TDD)](#test-driven-development--tdd-)
 - [Code Coverage with GCC](#code-coverage-with-gcc)
-- [Code Coverage with Clang](#code-coverage-with-clang)
+- [Code Coverage with Clang-tidy](#code-coverage-with-clang-tidy)
 - [Cppcheck](#cppcheck)
   * [Integrating Cppcheck into CMake](#integrating-cppcheck-into-cmake)
     + [Suppression](#suppression)
@@ -37,7 +40,6 @@
     + [XML output](#xml-output)
     + [Excluding files](#excluding-files)
 - [Valgrind call-graph](#valgrind-call-graph)
-
 
 
 This repository is about quality assurance of c++ code.It contains testing in diffrent levels `Unit testing`, `Integration testing`, `Regression testing` and `Acceptance tests` and cppcheck and code coverage.
@@ -259,11 +261,81 @@ TEST_F(FooTest,hasString)
 }
 ```
 
+#### static  SetUpTestSuite()/ TearDownTestSuite()
+Gtest creates a new test fixture object for each test in order to make tests independent. Constructor/destructor and setup/teardown functions will execute after each test rather than after the entire set of tests in the fixture. To sharing resources between tests in the same test suite, you can use `SetUpTestSuite()` and `TearDownTestSuite()`.
+
+
+
+```cpp
+class FooTest : public testing::Test {
+ protected:
+  // Per-test-suite set-up.
+  // Called before the first test in this test suite.
+  // Can be omitted if not needed.
+  static void SetUpTestSuite() {
+    shared_resource_ = new ...;
+  }
+
+  // Per-test-suite tear-down.
+  // Called after the last test in this test suite.
+  // Can be omitted if not needed.
+  static void TearDownTestSuite() {
+    delete shared_resource_;
+    shared_resource_ = nullptr;
+  }
+
+  // You can define per-test set-up logic as usual.
+  void SetUp() override { ... }
+
+  // You can define per-test tear-down logic as usual.
+  void TearDown() override { ... }
+
+  // Some expensive resource shared by all tests.
+  static T* shared_resource_;
+};
+
+T* FooTest::shared_resource_ = nullptr;
+
+TEST_F(FooTest, Test1) {
+  ... you can refer to shared_resource_ here ...
+}
+
+TEST_F(FooTest, Test2) {
+  ... you can refer to shared_resource_ here ...
+}
+```
+
+Refs: [1](https://github.com/google/googletest/blob/master/docs/advanced.md#sharing-resources-between-tests-in-the-same-test-suite)
+
+## Global Set-Up and Tear-Down
+Refs: [1](https://github.com/google/googletest/blob/master/docs/advanced.md#global-set-up-and-tear-down)
+
+## Running Tests and Patterns
+You can list all the test:
+
+```cpp
+<test executable> --gtest_list_tests
+```
+You can run specific tests:
+```cpp
+<test executable> --gtest_filter=<test-fixutre-name>
+```
+or with pattern
+```cpp
+<test executable> --gtest_filter=*<test-fixutre-name>*
+```
+
+or exclude specific tests:
+```cpp
+<test executable> --gtest_filter=-*<test-fixutre-name>*
+```
+
 ## Google Test XML report
 
 ```cpp
 <test executable> --gtest_output=xml:<filename>
 ```
+
 
 # Google Mock
 Let say you have a class which use an interface and you interested to test the class and not the interface. For example your interface would be a class called `IRandomNumberGenerator` which can generate random number with various data distribution. 
