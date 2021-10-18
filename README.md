@@ -894,11 +894,7 @@ public:
 
 
 # Code Coverage with GCC
-Here I have used `gcov`, `ggcov` and `lcov` for my code coverage.
-```
-sudo apt-get install ggcov lcov
-```
-Obtain a copy of `CodeCoverage.cmake` from [here](https://github.com/bilke/cmake-modules/blob/master/CodeCoverage.cmake) and copy it into 
+Here I have used `gcov`, `ggcov` and `lcov` for my code coverage. Obtain a copy of `CodeCoverage.cmake` from [here](https://github.com/bilke/cmake-modules/blob/master/CodeCoverage.cmake) and copy it into 
 `cmake/Modules/`. Then add the followings to your CMakeLists.txt
 
 ```
