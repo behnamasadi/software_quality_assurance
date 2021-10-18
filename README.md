@@ -109,7 +109,7 @@ project
 First install the required and optional packages for this repository (building, GTest, GMock, cppcheck, code coverage):
 
 ```
-sudo apt  install build-essential cmake cmake-qt-gui cppcheck-gui cppcheck  valgrind gcovr lcov
+sudo apt  install build-essential cmake cmake-qt-gui cppcheck-gui cppcheck  valgrind kcachegrind gcovr ggcov lcov 
 ```
 
 Then download and install Google Test:
