@@ -1,4 +1,5 @@
 - [Project Structure](#project-structure)
+- [Installation](#installation)
 - [Google Test](#google-test)
   * [Assertions](#assertions)
     + [Binary Comparison](#binary-comparison)
@@ -40,7 +41,6 @@
     + [XML output](#xml-output)
     + [Excluding files](#excluding-files)
 - [Valgrind call-graph](#valgrind-call-graph)
-
 
 This repository is about quality assurance of c++ code.It contains testing in diffrent levels `Unit testing`, `Integration testing`, `Regression testing` and `Acceptance tests` and cppcheck and code coverage.
 snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
@@ -105,6 +105,21 @@ project
      └──helper.py  
 ```
 
+# Installation
+First install the required and optional packages for this repository (building, GTest, GMock, cppcheck, code coverage):
+
+```
+sudo apt  install build-essential cmake cmake-qt-gui cppcheck-gui cppcheck  valgrind gcovr lcov
+```
+
+Then download and install Google Test:
+```
+git clone https://github.com/google/googletest
+
+mkdir googletest/build && cd googletest/build/
+
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX:PATH=~/usr .. && make -j8 all install
+```
 
 
 # Google Test
