@@ -893,6 +893,9 @@ public:
 # Test-Driven Development (TDD) 
 
 
+# Functional testing
+
+Refs: [1](https://www.guru99.com/functional-testing.html#:~:text=FUNCTIONAL%20TESTING%20is%20a%20type,output%20against%20the%20Functional%20requirements.)
 # Code Coverage with GCC
 Here I have used `gcov`, `ggcov` and `lcov` for my code coverage. Obtain a copy of `CodeCoverage.cmake` from [here](https://github.com/bilke/cmake-modules/blob/master/CodeCoverage.cmake) and copy it into 
 `cmake/Modules/`. Then add the followings to your CMakeLists.txt
