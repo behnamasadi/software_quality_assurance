@@ -32,6 +32,7 @@
   * [Mocking Class Templates](#mocking-class-templates)
 - [Testing Multi-Threaded Code](#testing-multi-threaded-code)
 - [Test-Driven Development (TDD)](#test-driven-development--tdd-)
+- [Functional testing](#functional-testing)
 - [Code Coverage with GCC](#code-coverage-with-gcc)
 - [Code Coverage with Clang-tidy](#code-coverage-with-clang-tidy)
 - [Cppcheck](#cppcheck)
@@ -41,6 +42,8 @@
     + [XML output](#xml-output)
     + [Excluding files](#excluding-files)
 - [Valgrind call-graph](#valgrind-call-graph)
+
+
 
 This repository is about quality assurance of c++ code.It contains testing in diffrent levels `Unit testing`, `Integration testing`, `Regression testing` and `Acceptance tests` and cppcheck and code coverage.
 snippet code of how to use Google Test and Google Mocking (Gtest, GMock) and Test Driven Development
