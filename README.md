@@ -128,25 +128,25 @@ cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX:P
 # Google Test
 
 When using googletest, you start by writing assertions (assertions are macros that resemble function calls). Tests use assertions to verify the tested code's behavior. 
-If a test crashes or has a failed assertion, then it fails; otherwise it succeeds.
+If a test crashes or has a failed assertion, then it fails; otherwise, it succeeds.
 An assertion's result can be:
 
-1) Succuss
+1) Success
 2) Non Fatal Failure
 3) Fatal Failure
 
-If a fatal failure occurs, it aborts the current function; otherwise the program continues normally.
+If a fatal failure occurs, it aborts the current function; otherwise, the program continues normally.
 
 A **test suite** contains one or many tests. You should group your tests into test suites that reflect the structure of the tested code. 
-When multiple tests in a test suite need to share common objects and subroutines, you can put them into a **test fixture** class.
+When multiple tests in a test suite must share common objects and subroutines, you can put them into a **test fixture** class.
 
 A test program can contain multiple test suites.
 
 ## Assertions
-You test a class or function by making assertions about its behavior. There are two sort of assertions:
-1) `ASSERT_*`  generate fatal failures when they fail, and abort the current function. 
-2) `EXPECT_*`  generate nonfatal failures, which don't abort the current function. 
-Usually `EXPECT_*` are preferred, as they allow more than one failure to be reported in a test. However, you should use `ASSERT_*`
+You test a class or function by making assertions about its behavior. There are two sorts of assertions:
+1) `ASSERT_*`  generates fatal failures when they fail, and abort the current function. 
+2) `EXPECT_*`  generates nonfatal failures, which don't abort the current function. 
+Usually `EXPECT_*` is preferred, as they allow more than one failure to be reported in a test. However, you should use `ASSERT_*`
  if it doesn't make sense to continue when the assertion in question fails.
 
 To provide a custom failure message, simply stream it into the macro using the << operator
@@ -174,7 +174,7 @@ Fatal assertion          | Nonfatal assertion       | Verifies
 `ASSERT_GT(val1, val2);` | `EXPECT_GT(val1, val2);` | `val1 > val2`
 `ASSERT_GE(val1, val2);` | `EXPECT_GE(val1, val2);` | `val1 >= val2`
 
-### User Defined Type
+### User-Defined Type
 These assertions can work with a user-defined type, but only if you define the corresponding comparison operator (e.g., == or <).
 ```cpp
 Mystruct myobj1,myobj2;
@@ -191,7 +191,7 @@ values on failure.
 
 ### String Comparison
 The assertions in this group compare two **C strings**. If you want to compare
-two `string` objects, use `EXPECT_EQ`, `EXPECT_NE`, and etc instead.
+two `string` objects, use `EXPECT_EQ`, `EXPECT_NE`, etc instead.
 
 <!-- mdformat off(github rendering does not support multiline tables) -->
 
@@ -205,7 +205,7 @@ two `string` objects, use `EXPECT_EQ`, `EXPECT_NE`, and etc instead.
 <!-- mdformat on-->
 
 ## Simple Tests
-googletest groups the test results by test suites, so logically related tests should be in the same test suite; in other words, the first argument to their `TEST()` should be the same. 
+google test groups the test results by test suites, so logically related tests should be in the same test suite; in other words, the first argument to their `TEST()` should be the same. 
 
 ```cpp
 TEST(TestSuiteName, TestName1) {
@@ -229,15 +229,15 @@ int main(int argc, char **argv)
  
 
 ## Test Fixtures
-**Test Fixtures** allows you to reuse the same configuration of objects for several different tests. To create a test fixtures just derive a class from `::testing::Test`.
+**Test Fixtures** allows you to reuse the same configuration of objects for several different tests. To create test fixtures, just derive a class from `::testing::Test`.
 
 If the constructor and destructor are not enough for setting up and cleaning up each test, you can define the 
 following methods: `SetUp()`, `TearDown()`.
 #### SetUp()
-Code here will be called immediately after the constructor (right before each test).
+The code here will be called immediately after the constructor (right before each test).
 
 #### TearDown()
-Code here will be called immediately after each test (right before the destructor).
+The code here will be called immediately after each test (right before the destructor).
 
 
 
@@ -280,7 +280,7 @@ TEST_F(FooTest,hasString)
 ```
 
 #### static  SetUpTestSuite()/ TearDownTestSuite()
-Gtest creates a new test fixture object for each test in order to make tests independent. Constructor/destructor and setup/teardown functions will execute after each test rather than after the entire set of tests in the fixture. To sharing resources between tests in the same test suite, you can use `SetUpTestSuite()` and `TearDownTestSuite()`.
+Gtest creates a new test fixture object for each test to make tests independent. Constructor/destructor and setup/teardown functions will execute after each test rather than after the entire set of tests in the fixture. To sharing resources between tests in the same test suite, you can use `SetUpTestSuite()` and `TearDownTestSuite()`.
 
 
 
@@ -308,7 +308,7 @@ class FooTest : public testing::Test {
   // You can define per-test tear-down logic as usual.
   void TearDown() override { ... }
 
-  // Some expensive resource shared by all tests.
+  // Some expensive resources are shared by all tests.
   static T* shared_resource_;
 };
 
@@ -329,7 +329,7 @@ Refs: [1](https://github.com/google/googletest/blob/master/docs/advanced.md#shar
 Refs: [1](https://github.com/google/googletest/blob/master/docs/advanced.md#global-set-up-and-tear-down)
 
 ## Running Tests and Patterns
-You can list all the test:
+You can list all the tests:
 
 ```cpp
 <test executable> --gtest_list_tests
@@ -356,18 +356,18 @@ or exclude specific tests:
 
 
 # Google Mock
-Let say you have a class which use an interface and you interested to test the class and not the interface. For example your interface would be a class called `IRandomNumberGenerator` which can generate random number with various data distribution. 
-This class should be an abstract calss (which cannot be instantiated) and depending on the desired distribution, the real job should be implemented in classes such as `UniformRandomNumberGenerator`, `GammaRandomNumberGenerator`, etc which inherite from `IRandomNumberGenerator` class.
+Let say you have a class that uses an interface and you are interested in testing the class and not the interface. For example, your interface would be a class called `IRandomNumberGenerator` which can generate random numbers with various data distributions. 
+This class should be an abstract calss (which cannot be instantiated) and depending on the desired distribution, the real job should be implemented in classes such as `UniformRandomNumberGenerator`, `GammaRandomNumberGenerator`, etc which inherits from `IRandomNumberGenerator` class.
 
-The class that you are interested to test is `CoinFlipper` which needs a random generator. We use dependency injection 
+The class that you are interested in testing is `CoinFlipper` which needs a random generator. We use dependency injection 
 and instead of having your application talk to the system API directly, wrap the API in an interface (`IRandomNumberGenerator`) and code to that interface
 
-So in your `CoinFlipper` calss you have memeber that is a pointer from `IRandomNumberGenerator` type.  In fact a pointer to the interface type should be passed into the constructor of `CoinFlipper`. It is best practice to use a smart pointer in these cases, to avoid memory management issues.
+So in your `CoinFlipper` class you have a member that is a pointer from `IRandomNumberGenerator` type.  In fact, a pointer to the interface type should be passed into the constructor of `CoinFlipper`. It is best practice to use a smart pointer in these cases, to avoid memory management issues.
 
 
-Since we interested to only test `CoinFlipper`,  (which needs an instance of `IRandomNumberGenerator`) and that instances might have non-deterministic behaviour which can't be reliably controlled, we create a mock object that inherite from `IRandomNumberGenerator` and we pass that to `CoinFlipper`.
+Since we are interested in only testing `CoinFlipper`, (which needs an instance of `IRandomNumberGenerator`) and that instances might have non-deterministic behavior which can't be reliably controlled, we create a mock object that inherits from `IRandomNumberGenerator` and we pass that to `CoinFlipper`.
 
-In fact any code that is non-deterministic for example:
+In fact, any code that is non-deterministic for example:
 
 - External data sources (e.g. files, databases)
 - Network connections (e.g. services)
@@ -387,7 +387,7 @@ CoinFlipper..> MockRandomNumberGenerator
 
 
 A mock should inherit from an abstract class, generally, that defines a virtual destructor explicitly and defines a pure virtual function for any method that will be needed by the mock objects. In other words, you can't mock non-virtual methods.
-The destructor of interface class must be virtual, as is the case for all classes you intend to inherit from - otherwise the destructor of the derived class will not be called when you delete an object through a base pointer, and you'll get corrupted program states like memory leaks.)
+The destructor of the interface class must be virtual, as is the case for all classes you intend to inherit from - otherwise, the destructor of the derived class will not be called when you delete an object through a base pointer, and you'll get corrupted program states like memory leaks.)
 
 ```cpp
 class IRandomNumberGenerator
@@ -419,7 +419,7 @@ public:
 
 1) Derive a class `MockRandomNumberGenerator` from `IRandomNumberGenerator`
 
-2) For every vitual function use the following macros:
+2) For every virtual function use the following macros:
 
 ```cpp
 MOCK_METHOD[n](methodName, returnType(arg1Type, ..., argNType));
@@ -437,7 +437,7 @@ public:
 
 ## Writting the Test 
 
-You test should have the follwoing format:
+Your test should have the following format:
 
 ```cpp
 EXPECT_CALL(mockObject, method(arg1Matcher, ..., argNMatcher))
@@ -474,7 +474,7 @@ TEST(CoinFlipper, flip)
 
 ```
 
-An other example:
+Another example:
 
 ```cpp
 EXPECT_CALL(*rng_ptr, generate(0.0,1.0))
@@ -486,10 +486,10 @@ EXPECT_CALL(*rng_ptr, generate(0.0,1.0))
 
 ## Mocking Non-virtual Methods
 gMock can mock non-virtual functions to be used in Hi-perf dependency injection. To achieve this, you have to create a mock class that 
-has functions with the same signature of your real class. You dont inherite from your real class and 
+has functions with the same signature as your real class. You don't inherit from your real class and 
 your mock class will be unrelated to the real class.
-Now have to templatize your consumer class (your consumer class has an intance of your real class). In the production you send an instance 
-of real class and during testing you send an instance of mock class;
+Now have to templatize your consumer class (your consumer class has an instance of your real class). In the production, you send an instance 
+of real class and during testing you send an instance of the mock class;
 
 
 Here your class has no virtual function:
@@ -533,7 +533,7 @@ public:
 };
 ```
 
-During the test we send an instance of mock class and during production we send an instance of real class:
+During the test, we send an instance of the mock class and during production, we send an instance of the real class:
 ```cpp
 TEST(Consumer, multiplier)
 {
@@ -558,7 +558,7 @@ TEST(Consumer, multiplier)
 ```
 
 ## Delegating Calls
-Sometimes the behavior of the mock classes might differ from the real objects. This could be intentional i.e for simulating an error such that you can test the error handling code. If your mocks have different behaviors than the real objects by mistake, you could end up with code that passes the tests but fails in production. Imagine you have the following interface:
+Sometimes the behavior of the mock classes might differ from the real objects. This could be intentional i.e. for simulating an error such that you can test the error handling code. If your mocks have different behaviors than the real objects by mistake, you could end up with code that passes the tests but fails in production. Imagine you have the following interface:
 
 ```cpp
 class Foo
@@ -570,10 +570,10 @@ public:
 };
 ```
 
-You can use the followings:
+You can use the following:
 
 ### Delegating Calls to Fake Class
-Now you want to mock this interface such that you it uses `FakeFoo` for the default behavior.
+Now you want to mock this interface such that it uses `FakeFoo` for the default behavior.
 When you define the mock class using gMock, you can have it delegate its default action to a fake class you already have, using this pattern.
 ```cpp
 namespace Fake
@@ -715,7 +715,7 @@ TEST(TestFoo, DelegatingToReal)
 ```
 
 ### Delegating Calls to Parent Class
-Ideally, you should code to interfaces, whose methods are all pure virtual. In reality, sometimes you do need to mock a virtual method that is not pure (i.e, it already has an implementation). For example:
+Ideally, you should code to interfaces, whose methods are all pure virtual. In reality, sometimes you do need to mock a virtual method that is not pure (i.e., it already has an implementation). For example:
 
 ```cpp
 namespace Parent
@@ -823,7 +823,7 @@ ACTION(Sum)
 ```
 For example
 ```
-// parametrised action
+//parametrized action
 ACTION_P(AppendName, name) {
     arg0.push_back(name);
 }
@@ -840,7 +840,7 @@ EXPECT_CALL(customerDatabase, retrieveCustomerNames(_))
 ```
 
 ## Where to Place Mocked Interfaces Code
-If you need to mock `IFoo` and it's is not your code and belonged to others, you can do the following:
+If you need to mock `IFoo` and it is not your code and belongs to others, you can do the following:
 
 1) Define a sub-package test in IFoo's package, put it in a .h and a cc_library  and  everyone can reference them from their tests. If `IFoo` ever changes, there is only one copy of `MockIFoo` to change, 
 and only tests that depend on the changed methods need to be fixed.
@@ -890,6 +890,8 @@ public:
     MOCK_METHOD(T, someFunction, (T t), (override));
 };
 ```
+## GitHub Action to Publish Test Results
+Refs: [1](https://github.com/marketplace/actions/publish-test-results), [2](https://github.com/bastianhjaeger/github_actions_gtest_example)
 
 # Testing Multi-Threaded Code
 
@@ -957,20 +959,20 @@ To ignore certain folders you can use -i. This will skip analysis of source file
 cppcheck --project=compile_commands.json -ifoo
 ```
 ## Integrating Cppcheck into CMake
-First you need to add the path to `FindCppcheck.cmake` to your CMakeLists.txt:
+First, you need to add the path to `FindCppcheck.cmake` to your CMakeLists.txt:
 ```
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 ```
 
 ### Suppression
-You can enable/ disable some warnings in Cppcheck using a suppression file. Default value for a suppressions file in `.cppcheck_suppressions`. To specify you custom file use:
+You can enable/ disable some warnings in Cppcheck using a suppression file. The default value for a suppressions file in `.cppcheck_suppressions`. To specify your custom file use:
 
 ```
 set(CPPCHECK_SUPPRESSIONS ${PROJECT_ROOT_DIR}/CppCheckSuppressions.txt)
 ```
 ### exitcode
 
-When Cppcheck finds errors you can tell it what error code to use when exiting the program. With the above script the default exitcode is 1. To override this you can use the CPPCHECK_ERROR_EXITCODE_ARG. To set it to use the cppcheck default
+When Cppcheck finds errors you can tell it what error code to use when exiting the program. With the above script, the default exitcode is 1. To override this you can use the CPPCHECK_ERROR_EXITCODE_ARG. To set it to use the cppcheck default
 
 ```
 set(CPPCHECK_ERROR_EXITCODE_ARG "")
@@ -982,6 +984,8 @@ You can set the output of the Cppcheck to XML so later on the result can be read
 ```
 set(CPPCHECK_XML_OUTPUT "${PROJECT_BINARY_DIR}/analysis/cppcheck/cppcheck_analysis.xml")
 ```
+
+
 
 
 ### Excluding files
